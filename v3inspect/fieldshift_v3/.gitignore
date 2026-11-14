@@ -1,0 +1,15 @@
+node_modules
+dist
+.env
+.DS_Store
+backend/.venv/
+backend/models/
+data/crop_stress_training.csv
+data/crop_yield_training.csv
+data/locations.csv
+data/power_season_features.csv
+__pycache__/
+
+.env.*
+!.env.example
+.pytest_cache/
