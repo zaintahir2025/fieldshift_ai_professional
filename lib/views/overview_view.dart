@@ -371,15 +371,16 @@ class _OverviewViewState extends State<OverviewView> {
             builder: (ctx, constraints) {
               final isWide = constraints.maxWidth > 700;
               final crossAxisCount = isWide ? 4 : 2;
-              final childAspectRatio = isWide ? 1.30 : 1.15;
 
-              return GridView.count(
+              return GridView(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                crossAxisCount: crossAxisCount,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-                childAspectRatio: childAspectRatio,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: crossAxisCount,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                  mainAxisExtent: 144,
+                ),
                 children: [
                   StatCard(
                     icon: Icons.thermostat,
@@ -690,30 +691,64 @@ class _OverviewViewState extends State<OverviewView> {
           ],
 
           // Quick Navigation & Satellite Explainer Pill
-          Row(
-            children: [
-              Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: () => widget.onNavigateToTab(2), // Navigate to Crop Rotation
-                  icon: const Icon(Icons.eco, size: 18),
-                  label: const Text('Compare 4 Rotation Strategies'),
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 14),
+          LayoutBuilder(
+            builder: (ctx, navConstraints) {
+              final isMobile = navConstraints.maxWidth < 620;
+              if (isMobile) {
+                return Column(
+                  children: [
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: () => widget.onNavigateToTab(2), // Navigate to Crop Rotation
+                        icon: const Icon(Icons.eco, size: 18),
+                        label: const Text('Compare 4 Rotation Strategies'),
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 13),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        onPressed: () => widget.onNavigateToTab(1), // Navigate to Map
+                        icon: const Icon(Icons.map_outlined, size: 18),
+                        label: const Text('Inspect Landscape Vulnerability'),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 13),
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              }
+              return Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () => widget.onNavigateToTab(2), // Navigate to Crop Rotation
+                      icon: const Icon(Icons.eco, size: 18),
+                      label: const Text('Compare 4 Rotation Strategies'),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                      ),
+                    ),
                   ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: () => widget.onNavigateToTab(1), // Navigate to Map
-                  icon: const Icon(Icons.map_outlined, size: 18),
-                  label: const Text('Inspect Landscape Vulnerability'),
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 14),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () => widget.onNavigateToTab(1), // Navigate to Map
+                      icon: const Icon(Icons.map_outlined, size: 18),
+                      label: const Text('Inspect Landscape Vulnerability'),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                      ),
+                    ),
                   ),
-                ),
-              ),
-            ],
+                ],
+              );
+            },
           ),
           const SizedBox(height: 12),
 
@@ -725,7 +760,7 @@ class _OverviewViewState extends State<OverviewView> {
               onPressed: () => _showSatelliteSourceModal(context),
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 36),
         ],
       ),
     );

@@ -1,14 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fieldshift_ai_professional/main.dart';
+import 'package:fieldshift_ai_professional/models/app_user.dart';
 import 'package:fieldshift_ai_professional/models/farmer_constraints.dart';
 import 'package:fieldshift_ai_professional/models/nasa_observation.dart';
 import 'package:fieldshift_ai_professional/models/climate_scenario.dart';
+import 'package:fieldshift_ai_professional/providers/auth_provider.dart';
 import 'package:fieldshift_ai_professional/services/rotation_engine.dart';
 import 'package:fieldshift_ai_professional/services/climate_risk_engine.dart';
 import 'package:fieldshift_ai_professional/services/localization_service.dart';
+import 'package:fieldshift_ai_professional/views/auth/login_view.dart';
 
 void main() {
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+  });
+
   final sampleWeather = AgroClimateSummary(
     meanTemp: 24.5,
     maxTemp: 34.0,
@@ -42,6 +50,34 @@ void main() {
       final legume = strategies.firstWhere((s) => s.id == 'regenerative_legume');
       expect(legume.nitrogenBalanceKgPerHa, greaterThan(0));
       expect(legume.bareFieldDaysPerYear, lessThan(30));
+    });
+
+    test('Regional Strategy Engine tailors rotations for US Corn Belt and California', () {
+      final iowaWeather = AgroClimateSummary(
+        meanTemp: 18.0,
+        maxTemp: 28.0,
+        minTemp: 8.0,
+        meanRainfall: 2.8,
+        totalRainfall: 84.0,
+        dryDaysCount: 12,
+        meanSolar: 19.0,
+        latitude: 41.5868,
+        longitude: -93.6250, // Iowa
+        observationDays: 30,
+        isLiveNasaData: true,
+        fetchTimestamp: DateTime.now(),
+      );
+
+      final iowaStrategies = RotationEngine.generateStrategies(
+        currentCrop: 'Maize',
+        soilTexture: 'Silt Loam',
+        constraints: const FarmerConstraints(priority: FarmerPriority.soilHealth),
+        weather: iowaWeather,
+      );
+
+      final legumeStrategy = iowaStrategies.firstWhere((s) => s.id == 'regenerative_legume');
+      expect(legumeStrategy.title, contains('Corn-Rye-Soybean-Clover'));
+      expect(legumeStrategy.steps.any((s) => s.cropName.contains('Cereal Rye')), isTrue);
     });
 
     test('Custom Sequence Evaluation accurately computes nitrogen, water, and soil metrics', () {
@@ -89,18 +125,59 @@ void main() {
     });
   });
 
+  group('Authentication Architecture Tests', () {
+    test('AppUser model handles guest instantiation and JSON roundtrip', () {
+      final guest = AppUser.guest();
+      expect(guest.isAnonymous, isTrue);
+      expect(guest.displayName, contains('Guest'));
+
+      final registered = AppUser(
+        uid: 'user_test_123',
+        email: 'farmer@test.com',
+        displayName: 'John Doe',
+        farmName: 'Sunset Valley',
+        isAnonymous: false,
+        createdAt: DateTime.now(),
+        lastLoginAt: DateTime.now(),
+      );
+
+      final map = registered.toMap();
+      final roundtrip = AppUser.fromMap(map);
+      expect(roundtrip.uid, equals('user_test_123'));
+      expect(roundtrip.email, equals('farmer@test.com'));
+      expect(roundtrip.farmName, equals('Sunset Valley'));
+      expect(roundtrip.isAnonymous, isFalse);
+    });
+
+    test('AuthProvider supports guest session and logout lifecycle', () async {
+      final auth = AuthProvider();
+      expect(auth.isAuthenticated, isFalse);
+
+      final success = await auth.loginAsGuest();
+      expect(success, isTrue);
+      expect(auth.isAuthenticated, isTrue);
+      expect(auth.isGuest, isTrue);
+
+      await auth.logout();
+      expect(auth.isAuthenticated, isFalse);
+      expect(auth.currentUser, isNull);
+    });
+  });
+
   group('Widget Smoke Test', () {
-    testWidgets('FieldShiftApp builds and navigates between views', (WidgetTester tester) async {
+    testWidgets('FieldShiftApp builds and displays login / workspace interface', (WidgetTester tester) async {
       tester.view.physicalSize = const Size(1280, 800);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
 
       await tester.pumpWidget(const FieldShiftApp());
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       expect(find.byType(FieldShiftApp), findsOneWidget);
-      expect(find.byType(MainScaffold), findsOneWidget);
+      expect(find.byType(LoginView), findsOneWidget);
+      expect(find.text('Sign In to Farm Workspace'), findsOneWidget);
+      expect(find.text('Explore Demo in Field Guest Mode'), findsOneWidget);
     });
   });
 }

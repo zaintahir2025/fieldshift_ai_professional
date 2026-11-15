@@ -98,6 +98,8 @@ class NasaPowerService {
           final summary = _computeSummary(
             observations,
             isLive: true,
+            latitude: latitude,
+            longitude: longitude,
             elevation: elevation,
             graceTrend: graceTrend,
           );
@@ -157,6 +159,8 @@ class NasaPowerService {
   static AgroClimateSummary _computeSummary(
     List<DailyObservation> observations, {
     required bool isLive,
+    double? latitude,
+    double? longitude,
     double? elevation,
     double? graceTrend,
   }) {
@@ -175,6 +179,8 @@ class NasaPowerService {
         meanRootZoneMoisture: 0.24,
         meanEvapotranspiration: 0.12,
         meanRelativeHumidity: 45.0,
+        latitude: latitude,
+        longitude: longitude,
         elevationMeters: elevation ?? 185.0,
         graceWaterStorageTrend: graceTrend ?? -1.5,
         observationDays: 30,
@@ -223,6 +229,8 @@ class NasaPowerService {
       meanRootZoneMoisture: meanGwRoot,
       meanEvapotranspiration: meanEvp,
       meanRelativeHumidity: meanRh,
+      latitude: latitude,
+      longitude: longitude,
       elevationMeters: elevation ?? 185.0,
       graceWaterStorageTrend: graceTrend ?? -1.5,
       observationDays: observations.length,
@@ -294,6 +302,8 @@ class NasaPowerService {
     final summary = _computeSummary(
       observations,
       isLive: false,
+      latitude: latitude,
+      longitude: longitude,
       elevation: elevation,
       graceTrend: graceTrend,
     );

@@ -242,6 +242,7 @@ class _CropRotationViewState extends State<CropRotationView> {
     required List<String> items,
     required ValueChanged<String?> onChanged,
   }) {
+    final effectiveItems = items.contains(value) ? items : [value, ...items];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -256,10 +257,10 @@ class _CropRotationViewState extends State<CropRotationView> {
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
-              value: items.contains(value) ? value : items.first,
+              value: value,
               isDense: true,
               style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.textDark),
-              items: items.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
+              items: effectiveItems.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
               onChanged: onChanged,
             ),
           ),
@@ -305,8 +306,11 @@ class _CropRotationViewState extends State<CropRotationView> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Section Heading
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 12,
+            runSpacing: 8,
             children: [
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -358,7 +362,7 @@ class _CropRotationViewState extends State<CropRotationView> {
                     _buildDropdown(
                       label: 'Current Sown Crop',
                       value: farm.constraints.currentCrop,
-                      items: const ['Wheat', 'Rice', 'Cotton', 'Maize', 'Sugarcane'],
+                      items: const ['Wheat', 'Rice', 'Cotton', 'Maize', 'Sugarcane', 'Soybean', 'Sorghum', 'Barley', 'Millet', 'Canola'],
                       onChanged: (val) {
                         if (val != null) farm.updateCurrentCrop(val);
                       },
@@ -367,7 +371,7 @@ class _CropRotationViewState extends State<CropRotationView> {
                     _buildDropdown(
                       label: 'Soil Texture',
                       value: farm.constraints.soilTexture,
-                      items: const ['Loam', 'Sandy Loam', 'Clay', 'Silt Loam'],
+                      items: const ['Loam', 'Sandy Loam', 'Clay', 'Silt Loam', 'Clay Loam', 'Clay Loam (Oxisol)', 'Sandy Clay', 'Sand'],
                       onChanged: (val) {
                         if (val != null) farm.updateSoilTexture(val);
                       },
@@ -398,21 +402,26 @@ class _CropRotationViewState extends State<CropRotationView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                Wrap(
+                  alignment: WrapAlignment.spaceBetween,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: 12,
+                  runSpacing: 8,
                   children: [
                     const Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(Icons.table_chart_outlined, size: 18, color: AppColors.primary),
                         SizedBox(width: 8),
                         Text(
-                          'STRATEGY COMPARISON MATRIX (AT A GLANCE)',
+                          'STRATEGY COMPARISON MATRIX',
                           style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 0.6, color: AppColors.primary),
                         ),
                       ],
                     ),
                     // Sort order dropdown
                     Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         const Text('Sort: ', style: TextStyle(fontSize: 10.5, color: AppColors.textSubtle, fontWeight: FontWeight.bold)),
                         DropdownButtonHideUnderline(
@@ -431,87 +440,195 @@ class _CropRotationViewState extends State<CropRotationView> {
                   ],
                 ),
                 const SizedBox(height: 12),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: DataTable(
-                    columnSpacing: 22,
-                    headingRowHeight: 38,
-                    dataRowMinHeight: 44,
-                    dataRowMaxHeight: 52,
-                    headingTextStyle: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w800, color: AppColors.textSubtle),
-                    columns: const [
-                      DataColumn(label: Text('STRATEGY')),
-                      DataColumn(label: Text('SCORE')),
-                      DataColumn(label: Text('WATER SHIFT')),
-                      DataColumn(label: Text('N₂ FIXATION')),
-                      DataColumn(label: Text('BARE FALLOW')),
-                      DataColumn(label: Text('SOIL HEALTH')),
-                      DataColumn(label: Text('PEST BREAK')),
-                    ],
-                    rows: strategies.map((s) {
-                      final isSel = farm.selectedStrategyId == s.id;
-                      final titleLabel = s.title.contains(':')
-                          ? s.title.split(':')[1].trim().split('&')[0]
-                          : s.title;
-
-                      return DataRow(
-                        selected: isSel,
-                        onSelectChanged: (_) => farm.selectStrategy(s.id),
-                        cells: [
-                          DataCell(
-                            Row(
-                              children: [
-                                if (s.isBaseline)
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-                                    margin: const EdgeInsets.only(right: 6),
-                                    decoration: BoxDecoration(color: AppColors.textMuted.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(4)),
-                                    child: const Text('BASE', style: TextStyle(fontSize: 8.5, fontWeight: FontWeight.bold, color: AppColors.textMuted)),
-                                  ),
-                                Text(
-                                  titleLabel,
-                                  style: TextStyle(fontSize: 11.5, fontWeight: isSel ? FontWeight.bold : FontWeight.w600, color: AppColors.textDark),
+                LayoutBuilder(
+                  builder: (ctx, matrixConstraints) {
+                    final isMobile = matrixConstraints.maxWidth < 650;
+                    if (isMobile) {
+                      return Column(
+                        children: strategies.map((s) {
+                          final isSel = farm.selectedStrategyId == s.id;
+                          return InkWell(
+                            onTap: () => farm.selectStrategy(s.id),
+                            borderRadius: BorderRadius.circular(12),
+                            child: Container(
+                              margin: const EdgeInsets.only(bottom: 10),
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: isSel ? AppColors.surfaceLight : Colors.white,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: isSel ? AppColors.primary : AppColors.borderLight,
+                                  width: isSel ? 1.8 : 1.0,
                                 ),
-                              ],
-                            ),
-                          ),
-                          DataCell(Text('${s.overallScore}/100', style: const TextStyle(fontWeight: FontWeight.bold))),
-                          DataCell(Text(
-                            '${s.waterSavingsPercentage >= 0 ? "+" : ""}${s.waterSavingsPercentage.toStringAsFixed(0)}%',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: s.waterSavingsPercentage >= 20 ? AppColors.waterBlue : AppColors.textMuted,
-                            ),
-                          )),
-                          DataCell(Text(
-                            '${s.nitrogenBalanceKgPerHa >= 0 ? "+" : ""}${s.nitrogenBalanceKgPerHa.toStringAsFixed(0)} kg',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: s.nitrogenBalanceKgPerHa > 0 ? AppColors.resilientGreen : AppColors.alertRed,
-                            ),
-                          )),
-                          DataCell(Text(
-                            '${s.bareFieldDaysPerYear} days',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              color: s.bareFieldDaysPerYear <= 25 ? AppColors.resilientGreen : AppColors.warningAmber,
-                            ),
-                          )),
-                          DataCell(Text('${s.soilHealthScore}/100')),
-                          DataCell(Row(
-                            children: List.generate(
-                              5,
-                              (idx) => Icon(
-                                idx < s.pestBreakRating ? Icons.star : Icons.star_border,
-                                size: 13,
-                                color: const Color(0xFFF4A261),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Expanded(
+                                        child: Row(
+                                          children: [
+                                            if (s.isBaseline)
+                                              Container(
+                                                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                                                margin: const EdgeInsets.only(right: 6),
+                                                decoration: BoxDecoration(
+                                                  color: AppColors.textMuted.withValues(alpha: 0.15),
+                                                  borderRadius: BorderRadius.circular(4),
+                                                ),
+                                                child: const Text('BASE', style: TextStyle(fontSize: 8.5, fontWeight: FontWeight.bold, color: AppColors.textMuted)),
+                                              ),
+                                            Expanded(
+                                              child: Text(
+                                                s.title.contains(':') ? s.title.split(':')[1].trim() : s.title,
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  fontWeight: isSel ? FontWeight.bold : FontWeight.w600,
+                                                  color: AppColors.textDark,
+                                                ),
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                                        decoration: BoxDecoration(
+                                          color: isSel ? AppColors.primary : AppColors.surfaceLight,
+                                          borderRadius: BorderRadius.circular(6),
+                                        ),
+                                        child: Text(
+                                          'Score ${s.overallScore}',
+                                          style: TextStyle(
+                                            fontSize: 10.5,
+                                            fontWeight: FontWeight.bold,
+                                            color: isSel ? Colors.white : AppColors.textDark,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      _buildMetricPill(
+                                        label: 'Water',
+                                        value: '${s.waterSavingsPercentage >= 0 ? "+" : ""}${s.waterSavingsPercentage.toStringAsFixed(0)}%',
+                                        color: s.waterSavingsPercentage >= 20 ? AppColors.waterBlue : AppColors.textMuted,
+                                      ),
+                                      _buildMetricPill(
+                                        label: 'N₂ Net',
+                                        value: '${s.nitrogenBalanceKgPerHa >= 0 ? "+" : ""}${s.nitrogenBalanceKgPerHa.toStringAsFixed(0)} kg',
+                                        color: s.nitrogenBalanceKgPerHa > 0 ? AppColors.resilientGreen : AppColors.alertRed,
+                                      ),
+                                      _buildMetricPill(
+                                        label: 'Bare Days',
+                                        value: '${s.bareFieldDaysPerYear} d',
+                                        color: s.bareFieldDaysPerYear <= 25 ? AppColors.resilientGreen : AppColors.warningAmber,
+                                      ),
+                                      _buildMetricPill(
+                                        label: 'Soil Health',
+                                        value: '${s.soilHealthScore}/100',
+                                        color: AppColors.primary,
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               ),
                             ),
-                          )),
-                        ],
+                          );
+                        }).toList(),
                       );
-                    }).toList(),
-                  ),
+                    }
+
+                    return SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: DataTable(
+                        columnSpacing: 22,
+                        headingRowHeight: 38,
+                        dataRowMinHeight: 44,
+                        dataRowMaxHeight: 52,
+                        headingTextStyle: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w800, color: AppColors.textSubtle),
+                        columns: const [
+                          DataColumn(label: Text('STRATEGY')),
+                          DataColumn(label: Text('SCORE')),
+                          DataColumn(label: Text('WATER SHIFT')),
+                          DataColumn(label: Text('N₂ FIXATION')),
+                          DataColumn(label: Text('BARE FALLOW')),
+                          DataColumn(label: Text('SOIL HEALTH')),
+                          DataColumn(label: Text('PEST BREAK')),
+                        ],
+                        rows: strategies.map((s) {
+                          final isSel = farm.selectedStrategyId == s.id;
+                          final titleLabel = s.title.contains(':')
+                              ? s.title.split(':')[1].trim().split('&')[0]
+                              : s.title;
+
+                          return DataRow(
+                            selected: isSel,
+                            onSelectChanged: (_) => farm.selectStrategy(s.id),
+                            cells: [
+                              DataCell(
+                                Row(
+                                  children: [
+                                    if (s.isBaseline)
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                                        margin: const EdgeInsets.only(right: 6),
+                                        decoration: BoxDecoration(color: AppColors.textMuted.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(4)),
+                                        child: const Text('BASE', style: TextStyle(fontSize: 8.5, fontWeight: FontWeight.bold, color: AppColors.textMuted)),
+                                      ),
+                                    Text(
+                                      titleLabel,
+                                      style: TextStyle(fontSize: 11.5, fontWeight: isSel ? FontWeight.bold : FontWeight.w600, color: AppColors.textDark),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              DataCell(Text('${s.overallScore}/100', style: const TextStyle(fontWeight: FontWeight.bold))),
+                              DataCell(Text(
+                                '${s.waterSavingsPercentage >= 0 ? "+" : ""}${s.waterSavingsPercentage.toStringAsFixed(0)}%',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: s.waterSavingsPercentage >= 20 ? AppColors.waterBlue : AppColors.textMuted,
+                                ),
+                              )),
+                              DataCell(Text(
+                                '${s.nitrogenBalanceKgPerHa >= 0 ? "+" : ""}${s.nitrogenBalanceKgPerHa.toStringAsFixed(0)} kg',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: s.nitrogenBalanceKgPerHa > 0 ? AppColors.resilientGreen : AppColors.alertRed,
+                                ),
+                              )),
+                              DataCell(Text(
+                                '${s.bareFieldDaysPerYear} days',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  color: s.bareFieldDaysPerYear <= 25 ? AppColors.resilientGreen : AppColors.warningAmber,
+                                ),
+                              )),
+                              DataCell(Text('${s.soilHealthScore}/100')),
+                              DataCell(Row(
+                                children: List.generate(
+                                  5,
+                                  (idx) => Icon(
+                                    idx < s.pestBreakRating ? Icons.star : Icons.star_border,
+                                    size: 13,
+                                    color: const Color(0xFFF4A261),
+                                  ),
+                                ),
+                              )),
+                            ],
+                          );
+                        }).toList(),
+                      ),
+                    );
+                  },
                 ),
                 const SizedBox(height: 10),
                 Align(
@@ -544,7 +661,7 @@ class _CropRotationViewState extends State<CropRotationView> {
               onSelect: () => farm.selectStrategy(s.id),
             );
           }),
-          const SizedBox(height: 20),
+          const SizedBox(height: 36),
         ],
       ),
     );
@@ -556,6 +673,7 @@ class _CropRotationViewState extends State<CropRotationView> {
     required List<String> items,
     required ValueChanged<String?> onChanged,
   }) {
+    final effectiveItems = items.contains(value) ? items : [value, ...items];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -573,7 +691,7 @@ class _CropRotationViewState extends State<CropRotationView> {
               value: value,
               isDense: true,
               style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.textDark),
-              items: items.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
+              items: effectiveItems.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
               onChanged: onChanged,
             ),
           ),
@@ -610,6 +728,24 @@ class _CropRotationViewState extends State<CropRotationView> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildMetricPill({required String label, required String value, required Color color}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: color.withValues(alpha: 0.25), width: 0.8),
+      ),
+      child: Column(
+        children: [
+          Text(label, style: const TextStyle(fontSize: 8, color: AppColors.textSubtle, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 1),
+          Text(value, style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.bold, color: color)),
+        ],
+      ),
     );
   }
 }

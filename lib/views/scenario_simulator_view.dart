@@ -113,9 +113,11 @@ class ScenarioSimulatorView extends StatelessWidget {
                   children: [
                     Icon(Icons.assessment_outlined, size: 18, color: AppColors.primary),
                     SizedBox(width: 8),
-                    Text(
-                      'SIMULATED ROTATION VIABILITY UNDER CLIMATE STRESS',
-                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 0.6, color: AppColors.primary),
+                    Expanded(
+                      child: Text(
+                        'SIMULATED ROTATION VIABILITY UNDER CLIMATE STRESS',
+                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 0.6, color: AppColors.primary),
+                      ),
                     ),
                   ],
                 ),
@@ -239,7 +241,7 @@ class ScenarioSimulatorView extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 36),
         ],
       ),
     );

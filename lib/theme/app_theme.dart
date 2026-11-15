@@ -6,7 +6,10 @@ class AppColors {
   static const Color primaryLighter = Color(0xFF40916C);
   static const Color primaryAccent = Color(0xFF52B788);
   static const Color primaryMuted = Color(0xFFD8F3DC);
+  static const Color primaryDark = Color(0xFF0F291E);
+  static const Color secondary = Color(0xFF2D6A4F);
 
+  static const Color background = Color(0xFFF6F8F6);
   static const Color surfaceLight = Color(0xFFF9FAF8);
   static const Color cardLight = Colors.white;
   static const Color borderLight = Color(0xFFE2E8E2);
@@ -15,10 +18,13 @@ class AppColors {
   static const Color textMuted = Color(0xFF5C6B61);
   static const Color textSubtle = Color(0xFF86968C);
 
-  // Status Tones
+  // Status Tones & Risk Levels
   static const Color resilientGreen = Color(0xFF2E7D32);
   static const Color warningAmber = Color(0xFFE65100);
   static const Color alertRed = Color(0xFFC62828);
+  static const Color riskHigh = Color(0xFFC62828);
+  static const Color riskMedium = Color(0xFFE65100);
+  static const Color riskLow = Color(0xFF2E7D32);
   static const Color waterBlue = Color(0xFF0277BD);
   static const Color solarYellow = Color(0xFFF57F17);
   static const Color purpleFallow = Color(0xFF6A1B9A);

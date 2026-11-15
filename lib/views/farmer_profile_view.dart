@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../providers/farm_provider.dart';
+import '../providers/auth_provider.dart';
+import '../models/app_user.dart';
 import '../models/farmer_constraints.dart';
 import '../services/localization_service.dart';
 import '../theme/app_theme.dart';
@@ -32,6 +34,7 @@ class _FarmerProfileViewState extends State<FarmerProfileView> {
   @override
   Widget build(BuildContext context) {
     final farm = context.watch<FarmProvider>();
+    final auth = context.watch<AuthProvider>();
     final c = farm.constraints;
     final assessment = farm.cropAssessment;
 
@@ -40,8 +43,11 @@ class _FarmerProfileViewState extends State<FarmerProfileView> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 12,
+            runSpacing: 8,
             children: [
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -59,6 +65,7 @@ class _FarmerProfileViewState extends State<FarmerProfileView> {
               ),
               // Simple Mode Switch
               Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(farm.tr('farmer_mode'), style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600)),
                   Switch(
@@ -70,6 +77,10 @@ class _FarmerProfileViewState extends State<FarmerProfileView> {
               ),
             ],
           ),
+          const SizedBox(height: 14),
+
+          // Authenticated Farmer Account & Firebase Cloud Sync Card
+          _buildAccountCard(context, auth, auth.currentUser),
           const SizedBox(height: 14),
 
           // Language & Accessibility Preference Card
@@ -397,15 +408,19 @@ class _FarmerProfileViewState extends State<FarmerProfileView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                Wrap(
+                  alignment: WrapAlignment.spaceBetween,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: 8,
+                  runSpacing: 6,
                   children: [
                     const Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(Icons.sensors, size: 18, color: AppColors.primary),
                         SizedBox(width: 8),
                         Text(
-                          'IN-SITU FIELD SENSOR MEASUREMENTS (OPTIONAL)',
+                          'IN-SITU FIELD SENSOR INPUTS',
                           style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 0.6, color: AppColors.primary),
                         ),
                       ],
@@ -595,7 +610,151 @@ class _FarmerProfileViewState extends State<FarmerProfileView> {
               },
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 36),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAccountCard(BuildContext context, AuthProvider auth, AppUser? user) {
+    final isGuest = user?.isAnonymous ?? true;
+    final name = user?.displayName.isNotEmpty == true ? user!.displayName : 'Farmer Steward';
+    final email = user?.email.isNotEmpty == true ? user!.email : 'Unregistered Field Guest';
+    final farmName = user?.farmName.isNotEmpty == true ? user!.farmName : 'My Resilient Farm';
+    final initials = name.split(' ').map((e) => e.isNotEmpty ? e[0] : '').take(2).join().toUpperCase();
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.borderLight),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              CircleAvatar(
+                radius: 22,
+                backgroundColor: isGuest ? AppColors.secondary.withValues(alpha: 0.2) : AppColors.primary,
+                child: Text(
+                  initials.isNotEmpty ? initials : 'FS',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: isGuest ? AppColors.secondary : Colors.white,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            name,
+                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textDark),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: isGuest ? AppColors.riskMedium.withValues(alpha: 0.12) : AppColors.resilientGreen.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            isGuest ? 'Guest Mode' : 'Firebase Verified',
+                            style: TextStyle(
+                              fontSize: 9.5,
+                              fontWeight: FontWeight.bold,
+                              color: isGuest ? AppColors.riskMedium : AppColors.resilientGreen,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      '$farmName · $email',
+                      style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              IconButton(
+                tooltip: 'Sign Out',
+                icon: const Icon(Icons.logout, size: 20, color: AppColors.riskHigh),
+                onPressed: () => _confirmSignOut(context, auth),
+              ),
+            ],
+          ),
+          if (isGuest) ...[
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: AppColors.surfaceLight,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: AppColors.borderLight),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.cloud_upload_outlined, size: 16, color: AppColors.primary),
+                  const SizedBox(width: 8),
+                  const Expanded(
+                    child: Text(
+                      'Sign in or create an account to synchronize custom farm boundaries and multi-year rotation plans to Firebase Cloud.',
+                      style: TextStyle(fontSize: 10.5, color: AppColors.textMuted, height: 1.3),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  TextButton(
+                    onPressed: () => auth.logout(),
+                    child: const Text('Sign In', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: AppColors.primary)),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  void _confirmSignOut(BuildContext context, AuthProvider auth) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Sign Out', style: TextStyle(fontWeight: FontWeight.bold)),
+        content: const Text('Are you sure you want to sign out of your farm workspace?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.riskHigh),
+            onPressed: () {
+              Navigator.pop(ctx);
+              auth.logout();
+            },
+            child: const Text('Sign Out', style: TextStyle(color: Colors.white)),
+          ),
         ],
       ),
     );

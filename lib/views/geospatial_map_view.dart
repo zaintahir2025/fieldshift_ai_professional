@@ -18,8 +18,11 @@ class GeospatialMapView extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Section Title
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 12,
+            runSpacing: 8,
             children: [
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -90,15 +93,19 @@ class GeospatialMapView extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                Wrap(
+                  alignment: WrapAlignment.spaceBetween,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: 8,
+                  runSpacing: 6,
                   children: [
                     const Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(Icons.terrain, color: AppColors.primary, size: 18),
                         SizedBox(width: 8),
                         Text(
-                          'PARCEL ELEVATION & TERRAIN CONCAVITY (NASA SRTM 30M)',
+                          'PARCEL ELEVATION & CONCAVITY',
                           style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w800, letterSpacing: 0.6, color: AppColors.primary),
                         ),
                       ],
@@ -109,7 +116,7 @@ class GeospatialMapView extends StatelessWidget {
                         color: const Color(0xFFE8F5E9),
                         borderRadius: BorderRadius.circular(4),
                       ),
-                      child: const Text('SRTM-DEM 30M', style: TextStyle(fontSize: 8.5, fontWeight: FontWeight.bold, color: AppColors.resilientGreen)),
+                      child: const Text('NASA SRTM 30M', style: TextStyle(fontSize: 8.5, fontWeight: FontWeight.bold, color: AppColors.resilientGreen)),
                     ),
                   ],
                 ),
@@ -225,7 +232,7 @@ class GeospatialMapView extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           ...farm.vulnerabilityZones.map((zone) => _buildVulnerabilityExpandedCard(zone)),
-          const SizedBox(height: 20),
+          const SizedBox(height: 36),
         ],
       ),
     );
@@ -342,20 +349,25 @@ class GeospatialMapView extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  Container(
-                    width: 10,
-                    height: 10,
-                    decoration: BoxDecoration(color: z.badgeColor, shape: BoxShape.circle),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    z.name,
-                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textDark),
-                  ),
-                ],
+              Expanded(
+                child: Row(
+                  children: [
+                    Container(
+                      width: 10,
+                      height: 10,
+                      decoration: BoxDecoration(color: z.badgeColor, shape: BoxShape.circle),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        z.name,
+                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textDark),
+                      ),
+                    ),
+                  ],
+                ),
               ),
+              const SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
@@ -372,12 +384,12 @@ class GeospatialMapView extends StatelessWidget {
           const SizedBox(height: 8),
           Text(z.primaryThreat, style: const TextStyle(fontSize: 12, color: AppColors.textDark, height: 1.35)),
           const SizedBox(height: 10),
-          Row(
+          Wrap(
+            spacing: 8,
+            runSpacing: 6,
             children: [
               _buildSmallBadge(Icons.landscape_outlined, z.elevationProfile),
-              const SizedBox(width: 10),
               _buildSmallBadge(Icons.show_chart, z.slopeGradient),
-              const SizedBox(width: 10),
               _buildSmallBadge(Icons.straighten, z.areaHectares),
             ],
           ),

@@ -7,7 +7,8 @@ import '../models/nasa_observation.dart';
 import '../theme/app_theme.dart';
 
 class NasaCatalogView extends StatelessWidget {
-  const NasaCatalogView({super.key});
+  final VoidCallback? onBack;
+  const NasaCatalogView({super.key, this.onBack});
 
   Future<void> _launchUrl(String url) async {
     final uri = Uri.parse(url);
@@ -60,8 +61,23 @@ class NasaCatalogView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          if (onBack != null) ...[
+            TextButton.icon(
+              onPressed: onBack,
+              icon: const Icon(Icons.arrow_back, size: 16),
+              label: const Text('Back to Farm Overview'),
+              style: TextButton.styleFrom(
+                foregroundColor: AppColors.primary,
+                padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 4),
+              ),
+            ),
+            const SizedBox(height: 8),
+          ],
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 12,
+            runSpacing: 8,
             children: [
               const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -262,7 +278,7 @@ class NasaCatalogView extends StatelessWidget {
               ),
             );
           }),
-          const SizedBox(height: 20),
+          const SizedBox(height: 36),
         ],
       ),
     );

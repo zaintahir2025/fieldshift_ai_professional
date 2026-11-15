@@ -47,6 +47,8 @@ class AgroClimateSummary {
   final double? meanRootZoneMoisture;
   final double? meanEvapotranspiration;
   final double? meanRelativeHumidity;
+  final double? latitude;
+  final double? longitude;
   final double? elevationMeters;
   final double? graceWaterStorageTrend; // cm/year LWE
   final int observationDays;
@@ -68,6 +70,8 @@ class AgroClimateSummary {
     this.meanRootZoneMoisture,
     this.meanEvapotranspiration,
     this.meanRelativeHumidity,
+    this.latitude,
+    this.longitude,
     this.elevationMeters,
     this.graceWaterStorageTrend,
     required this.observationDays,
@@ -75,6 +79,58 @@ class AgroClimateSummary {
     required this.fetchTimestamp,
     this.dataSourceAttribution = 'NASA POWER Daily Agroclimatology & SMAP L4 via POWER AG',
   });
+
+  AgroRegion get agroRegion {
+    final lat = latitude ?? 31.4;
+    final lon = longitude ?? 73.1;
+    // Indus & Ganges Basin (Punjab, Sindh, Haryana, UP, Bihar, etc.)
+    if (lat >= 22.0 && lat <= 36.0 && lon >= 66.0 && lon <= 90.0) {
+      return AgroRegion.indusGangesBasin;
+    }
+    // US Corn Belt (Midwest US: lat 37-49, lon -104 to -80)
+    if (lat >= 37.0 && lat <= 49.0 && lon >= -104.0 && lon <= -80.0) {
+      return AgroRegion.usCornBelt;
+    }
+    // California Central Valley (lat 34-42, lon -124 to -117)
+    if (lat >= 34.0 && lat <= 42.0 && lon >= -124.0 && lon <= -117.0) {
+      return AgroRegion.californiaCentralValley;
+    }
+    // East African Highlands (lat -12 to 8, lon 28 to 44)
+    if (lat >= -12.0 && lat <= 8.0 && lon >= 28.0 && lon <= 44.0) {
+      return AgroRegion.eastAfricanHighlands;
+    }
+    // Brazil Cerrado / South America (lat -25 to -5, lon -60 to -40)
+    if (lat >= -25.0 && lat <= -5.0 && lon >= -60.0 && lon <= -40.0) {
+      return AgroRegion.brazilCerrado;
+    }
+    // Nile & Mediterranean (lat 24 to 34, lon 25 to 36)
+    if (lat >= 24.0 && lat <= 34.0 && lon >= 25.0 && lon <= 36.0) {
+      return AgroRegion.nileMediterranean;
+    }
+    // Fallbacks based on climate characteristics
+    if (meanTemp < 15.0 || minTemp < 2.0) {
+      return AgroRegion.globalTemperate;
+    } else if (totalRainfall < 30.0 || (meanSurfaceMoisture != null && meanSurfaceMoisture! < 0.20)) {
+      return AgroRegion.globalArid;
+    } else {
+      return AgroRegion.globalTropical;
+    }
+  }
+}
+
+enum AgroRegion {
+  indusGangesBasin('Indus & Ganges Basin (South Asia)'),
+  usCornBelt('US Corn Belt (Midwest)'),
+  californiaCentralValley('California Central Valley (Mediterranean)'),
+  eastAfricanHighlands('East African Highlands (Tropical Bimodal)'),
+  brazilCerrado('Cerrado / South America (Tropical Wet/Dry)'),
+  nileMediterranean('Nile Basin & Mediterranean'),
+  globalTemperate('Global Temperate Agricultural Zone'),
+  globalArid('Global Arid / Semi-Arid Zone'),
+  globalTropical('Global Tropical Agricultural Zone');
+
+  final String label;
+  const AgroRegion(this.label);
 }
 
 class NasaDatasetMetadata {
