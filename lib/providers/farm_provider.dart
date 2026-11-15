@@ -11,6 +11,7 @@ import '../services/nasa_power_service.dart';
 import '../services/rotation_engine.dart';
 import '../services/climate_risk_engine.dart';
 import '../services/localization_service.dart';
+import '../services/geocoding_service.dart';
 
 enum ChartMetricMode {
   tempAndRain('Temperature & Rainfall', 'T2M (°C) + PRECTOTCORR (mm/day)'),
@@ -29,6 +30,7 @@ class FarmProvider extends ChangeNotifier {
   FarmLocation _location = FarmLocation.presetLocations.first;
   int _rangeDays = 30;
   bool _isLoading = false;
+  bool _isLocating = false;
   String? _errorMessage;
 
   AgroClimateSummary? _summary;
@@ -55,6 +57,7 @@ class FarmProvider extends ChangeNotifier {
   FarmLocation get location => _location;
   int get rangeDays => _rangeDays;
   bool get isLoading => _isLoading;
+  bool get isLocating => _isLocating;
   String? get errorMessage => _errorMessage;
 
   AgroClimateSummary? get summary => _summary;
@@ -225,23 +228,83 @@ class FarmProvider extends ChangeNotifier {
     loadFarmData(newLocation: newLoc);
   }
 
-  void setFarmCoordinateFromMap(LatLng point, {String? customName}) {
+  /// Automatically locates user using browser or device GPS and resolves address via OpenStreetMap
+  Future<bool> locateUserCurrentGps() async {
+    _isLocating = true;
+    notifyListeners();
+
+    try {
+      final pos = await GeocodingService.getCurrentDevicePosition();
+      if (pos != null) {
+        final loc = await GeocodingService.reverseGeocode(
+          latitude: pos.latitude,
+          longitude: pos.longitude,
+          isGpsOrigin: true,
+        );
+        setLocation(loc);
+        _isLocating = false;
+        notifyListeners();
+        return true;
+      }
+    } catch (_) {}
+
+    _isLocating = false;
+    notifyListeners();
+    return false;
+  }
+
+  /// Sets location when a farmer taps anywhere on OpenStreetMap with instant Nominatim reverse geocoding
+  void setFarmCoordinateFromMap(LatLng point, {String? customName}) async {
     final lat = point.latitude;
     final lon = point.longitude;
-    final name = customName ?? 'Farm Parcel (${lat.toStringAsFixed(3)}°, ${lon.toStringAsFixed(3)}°)';
-    final loc = FarmLocation(
+
+    if (customName != null && customName.isNotEmpty) {
+      final loc = FarmLocation(
+        id: 'map_pin_${lat.toStringAsFixed(3)}_${lon.toStringAsFixed(3)}',
+        name: customName,
+        region: 'OpenStreetMap Pin',
+        country: 'Regional Farmland',
+        latitude: lat,
+        longitude: lon,
+        defaultCrop: _constraints.currentCrop,
+        defaultSoil: _constraints.soilTexture,
+        climateZone: 'Micro-Topographical Parcel',
+        groundwaterStatus: 'Aquifer Inferred from NASA GRACE',
+      );
+      setLocation(loc);
+      return;
+    }
+
+    // Set immediate responsive placeholder
+    final tempLoc = FarmLocation(
       id: 'map_pin_${lat.toStringAsFixed(3)}_${lon.toStringAsFixed(3)}',
-      name: name,
-      region: 'GPS Coordinates Selected on Map',
-      country: 'Global',
+      name: 'Resolving Location via OpenStreetMap...',
+      region: 'Fetching Address & NASA Data',
+      country: 'Global Farmland',
       latitude: lat,
       longitude: lon,
       defaultCrop: _constraints.currentCrop,
       defaultSoil: _constraints.soilTexture,
-      climateZone: 'Micro-Topographical Parcel',
-      groundwaterStatus: 'Aquifer Inferred from NASA GRACE',
+      climateZone: 'Agro-climatic Basin',
+      groundwaterStatus: 'OpenStreetMap Selected Pin',
     );
-    setLocation(loc);
+    setLocation(tempLoc);
+
+    // Asynchronously resolve real human-friendly place name via OpenStreetMap
+    final resolvedLoc = await GeocodingService.reverseGeocode(
+      latitude: lat,
+      longitude: lon,
+    );
+
+    // Update with human-friendly place name
+    if (_location.latitude == lat && _location.longitude == lon) {
+      _location = resolvedLoc;
+      notifyListeners();
+    }
+  }
+
+  Future<List<FarmLocation>> searchOnlineLocations(String query) async {
+    return await GeocodingService.searchPlaces(query);
   }
 
   void setCustomCoordinates(double lat, double lon, {String name = 'Custom Location'}) {

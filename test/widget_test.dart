@@ -10,6 +10,7 @@ import 'package:fieldshift_ai_professional/providers/auth_provider.dart';
 import 'package:fieldshift_ai_professional/services/rotation_engine.dart';
 import 'package:fieldshift_ai_professional/services/climate_risk_engine.dart';
 import 'package:fieldshift_ai_professional/services/localization_service.dart';
+import 'package:fieldshift_ai_professional/services/geocoding_service.dart';
 import 'package:fieldshift_ai_professional/views/auth/login_view.dart';
 
 void main() {
@@ -161,6 +162,37 @@ void main() {
       await auth.logout();
       expect(auth.isAuthenticated, isFalse);
       expect(auth.currentUser, isNull);
+    });
+  });
+
+  group('OpenStreetMap & Geocoding Tests', () {
+    test('GeocodingSearchResult transforms into human-readable FarmLocation', () {
+      const result = GeocodingSearchResult(
+        displayName: 'Sacramento County, California, United States',
+        region: 'California, United States',
+        country: 'United States',
+        latitude: 38.5816,
+        longitude: -121.4944,
+      );
+
+      final loc = result.toFarmLocation(defaultCrop: 'Almonds', defaultSoil: 'Sandy Loam');
+      expect(loc.name, equals('Sacramento County, California, United States'));
+      expect(loc.region, equals('California, United States'));
+      expect(loc.climateZone, equals('Agroecological Region'));
+      expect(loc.defaultCrop, equals('Almonds'));
+      expect(loc.defaultSoil, equals('Sandy Loam'));
+      expect(loc.latitude, equals(38.5816));
+      expect(loc.longitude, equals(-121.4944));
+    });
+
+    test('GeocodingService fallback returns descriptive human place names', () async {
+      // Test known fallback coordinates (Sacramento Valley)
+      final loc = await GeocodingService.reverseGeocode(latitude: 38.58, longitude: -121.49);
+      expect(loc.name, isNotEmpty);
+      expect(loc.region, isNotEmpty);
+      expect(loc.climateZone, isNotEmpty);
+      // Verify no raw code or raw coordinate string in the primary title
+      expect(loc.name.contains('°'), isFalse);
     });
   });
 

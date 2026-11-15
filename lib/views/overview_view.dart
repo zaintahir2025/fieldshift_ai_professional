@@ -43,6 +43,60 @@ class _OverviewViewState extends State<OverviewView> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    // GPS Detect Button
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        ),
+                        icon: farm.isLocating
+                            ? const SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                              )
+                            : const Icon(Icons.my_location, size: 16),
+                        label: Text(
+                          farm.isLocating ? 'Detecting GPS position...' : 'Use My Current GPS Location',
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                        ),
+                        onPressed: farm.isLocating
+                            ? null
+                            : () async {
+                                setDialogState(() {});
+                                final success = await farm.locateUserCurrentGps();
+                                if (ctx.mounted) {
+                                  Navigator.pop(ctx);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        success
+                                            ? 'Detected GPS: ${farm.location.name} · ${farm.location.region}'
+                                            : 'Could not access GPS location. Please check device permissions.',
+                                      ),
+                                      behavior: SnackBarBehavior.floating,
+                                    ),
+                                  );
+                                }
+                              },
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    const Row(
+                      children: [
+                        Expanded(child: Divider()),
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 8),
+                          child: Text('OR SEARCH PLACE', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.textSubtle)),
+                        ),
+                        Expanded(child: Divider()),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
                     TextField(
                       controller: _searchController,
                       decoration: InputDecoration(
@@ -81,7 +135,10 @@ class _OverviewViewState extends State<OverviewView> {
                               dense: true,
                               leading: const Icon(Icons.place, size: 18, color: AppColors.primaryLight),
                               title: Text(item.displayName, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
-                              subtitle: Text('${item.latitude.toStringAsFixed(3)}°, ${item.longitude.toStringAsFixed(3)}°', style: const TextStyle(fontSize: 10)),
+                              subtitle: Text(
+                                item.region.isNotEmpty ? item.region : 'OpenStreetMap Global Geocoder',
+                                style: const TextStyle(fontSize: 10, color: AppColors.textMuted),
+                              ),
                               onTap: () {
                                 farm.setLocation(item.toFarmLocation(
                                   defaultCrop: farm.constraints.currentCrop,
@@ -307,13 +364,42 @@ class _OverviewViewState extends State<OverviewView> {
                               ),
                               const SizedBox(height: 2),
                               Text(
-                                '${farm.location.region} · Coordinates: ${farm.location.latitude.toStringAsFixed(3)}°, ${farm.location.longitude.toStringAsFixed(3)}° · Climate: ${farm.location.climateZone}',
+                                '${farm.location.region} · Agro-Climatic Zone: ${farm.location.climateZone} · Soil: ${farm.location.defaultSoil}',
                                 style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
                               ),
                             ],
                           ),
                         ),
                         if (!isNarrow) ...[
+                          const SizedBox(width: 8),
+                          ElevatedButton.icon(
+                            onPressed: farm.isLocating
+                                ? null
+                                : () async {
+                                    final success = await farm.locateUserCurrentGps();
+                                    if (context.mounted) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                            success
+                                                ? 'Detected GPS: ${farm.location.name} · ${farm.location.region}'
+                                                : 'Could not access GPS location. Check device permissions.',
+                                          ),
+                                          behavior: SnackBarBehavior.floating,
+                                        ),
+                                      );
+                                    }
+                                  },
+                            icon: farm.isLocating
+                                ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                                : const Icon(Icons.my_location, size: 14),
+                            label: Text(farm.isLocating ? 'Locating...' : 'Detect GPS'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primary,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            ),
+                          ),
                           const SizedBox(width: 8),
                           OutlinedButton.icon(
                             onPressed: () => _showLocationDialog(context, farm),
@@ -339,12 +425,43 @@ class _OverviewViewState extends State<OverviewView> {
                       Row(
                         children: [
                           Expanded(
+                            child: ElevatedButton.icon(
+                              onPressed: farm.isLocating
+                                  ? null
+                                  : () async {
+                                      final success = await farm.locateUserCurrentGps();
+                                      if (context.mounted) {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                              success
+                                                  ? 'Detected GPS: ${farm.location.name} · ${farm.location.region}'
+                                                  : 'Could not access GPS location. Check device permissions.',
+                                            ),
+                                            behavior: SnackBarBehavior.floating,
+                                          ),
+                                        );
+                                      }
+                                    },
+                              icon: farm.isLocating
+                                  ? const SizedBox(width: 12, height: 12, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                                  : const Icon(Icons.my_location, size: 14),
+                              label: Text(farm.isLocating ? 'Locating...' : 'GPS Locate'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primary,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
                             child: OutlinedButton.icon(
                               onPressed: () => _showLocationDialog(context, farm),
                               icon: const Icon(Icons.search, size: 14),
-                              label: const Text('Change Location'),
+                              label: const Text('Change Place'),
                               style: OutlinedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                               ),
                             ),
                           ),

@@ -38,29 +38,66 @@ class GeospatialMapView extends StatelessWidget {
                   ),
                 ],
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                decoration: BoxDecoration(
-                  color: AppColors.surfaceLight,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: AppColors.borderLight),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      farm.activeMapLayer.contains('Satellite')
-                          ? Icons.satellite_alt
-                          : (farm.activeMapLayer.contains('Topo') ? Icons.terrain : Icons.map_outlined),
-                      size: 14,
-                      color: AppColors.primary,
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ElevatedButton.icon(
+                    onPressed: farm.isLocating
+                        ? null
+                        : () async {
+                            final ok = await farm.locateUserCurrentGps();
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(ok
+                                      ? 'Detected GPS: ${farm.location.name} · ${farm.location.region}'
+                                      : 'Could not access GPS location. Check device permissions.'),
+                                  behavior: SnackBarBehavior.floating,
+                                ),
+                              );
+                            }
+                          },
+                    icon: farm.isLocating
+                        ? const SizedBox(
+                            width: 14,
+                            height: 14,
+                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                          )
+                        : const Icon(Icons.my_location, size: 14),
+                    label: Text(farm.isLocating ? 'Locating...' : 'Use My GPS'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                      textStyle: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold),
                     ),
-                    const SizedBox(width: 6),
-                    Text(
-                      'Layer: ${farm.activeMapLayer}',
-                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.textDark),
+                  ),
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    decoration: BoxDecoration(
+                      color: AppColors.surfaceLight,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: AppColors.borderLight),
                     ),
-                  ],
-                ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          farm.activeMapLayer.contains('Satellite')
+                              ? Icons.satellite_alt
+                              : (farm.activeMapLayer.contains('Topo') ? Icons.terrain : Icons.map_outlined),
+                          size: 14,
+                          color: AppColors.primary,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          'Layer: ${farm.activeMapLayer}',
+                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.textDark),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -75,13 +112,27 @@ class GeospatialMapView extends StatelessWidget {
             visibleZoneTypes: farm.activeVulnerabilityTypes,
             onLayerChanged: (layer) => farm.setActiveMapLayer(layer),
             onOpacityChanged: (val) => farm.setMapLayerOpacity(val),
+            onGpsRequested: () async {
+              final ok = await farm.locateUserCurrentGps();
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(ok
+                        ? 'Detected GPS: ${farm.location.name} · ${farm.location.region}'
+                        : 'Could not access GPS location. Check device permissions.'),
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+              }
+            },
+            isLocating: farm.isLocating,
             onMapTapped: (point) {
               farm.setFarmCoordinateFromMap(point);
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Farm pin relocated to ${point.latitude.toStringAsFixed(4)}°, ${point.longitude.toStringAsFixed(4)}°. Recalculating micro-topography & NASA observations!'),
+                const SnackBar(
+                  content: Text('Farm pin relocated. Identifying place and recalculating satellite data...'),
                   behavior: SnackBarBehavior.floating,
-                  duration: const Duration(seconds: 3),
+                  duration: Duration(seconds: 3),
                 ),
               );
             },
