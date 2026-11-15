@@ -2,6 +2,10 @@
 ### Earth Intelligence for Climate-Resilient Farms & Soil Health
 **NASA Space Apps Challenge 2026 — Adapting Farms with NASA Data**
 
+<p align="center">
+  <img src="assets/images/logo.png" width="140" alt="FieldShift AI Logo" />
+</p>
+
 [![Deploy Flutter Web to GitHub Pages](https://github.com/zaintahir2025/fieldshift_ai_professional/actions/workflows/deploy.yml/badge.svg)](https://github.com/zaintahir2025/fieldshift_ai_professional/actions/workflows/deploy.yml)
 [![Live Web App](https://img.shields.io/badge/Live%20Web%20App-GitHub%20Pages-brightgreen?logo=google-chrome&logoColor=white)](https://zaintahir2025.github.io/fieldshift_ai_professional/)
 [![Flutter](https://img.shields.io/badge/Flutter-3.47.5-blue?logo=flutter)](https://flutter.dev)

@@ -589,6 +589,47 @@ class _FarmerProfileViewState extends State<FarmerProfileView> {
           ],
           const SizedBox(height: 16),
 
+          // About FieldShift AI Card with Logo
+          Container(
+            padding: const EdgeInsets.all(18),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AppColors.borderLight),
+            ),
+            child: Row(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Image.asset(
+                    'assets/images/logo.png',
+                    width: 48,
+                    height: 48,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                const SizedBox(width: 14),
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'FieldShift AI v1.0.0',
+                        style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.bold, color: AppColors.textDark),
+                      ),
+                      SizedBox(height: 2),
+                      Text(
+                        'NASA Space Apps Challenge 2026\nAdapting Farms with NASA Earth Observations',
+                        style: TextStyle(fontSize: 11, color: AppColors.textMuted, height: 1.3),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+
           // Export / Share Farm Profile Action Button
           SizedBox(
             width: double.infinity,
