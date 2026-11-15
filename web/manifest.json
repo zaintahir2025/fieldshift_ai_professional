@@ -1,11 +1,11 @@
 {
-    "name": "fieldshift_ai_professional",
-    "short_name": "fieldshift_ai_professional",
+    "name": "FieldShift AI - NASA Earth Observation Agricultural Platform",
+    "short_name": "FieldShift AI",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#0B1D13",
+    "theme_color": "#1B4D3E",
+    "description": "Decision-support platform leveraging NASA Earth Observations (SMAP, ECOSTRESS, GPM, Landsat, MODIS, NASA POWER, GRACE, SRTM) for resilient crop rotation.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
