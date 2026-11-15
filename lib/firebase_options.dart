@@ -41,22 +41,22 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyA_fieldshift_ai_web_demo_key_2026',
-    appId: '1:108394857201:web:9c2b4d8a1e3f7g5h',
-    messagingSenderId: '108394857201',
-    projectId: 'fieldshift-ai-2026',
-    authDomain: 'fieldshift-ai-2026.firebaseapp.com',
-    storageBucket: 'fieldshift-ai-2026.appspot.com',
+    apiKey: 'AIzaSyAxN2cEAl7c_WKFh0e58aX61vvAzUmK1i0',
+    appId: '1:539797543710:web:a7c3b31d30ff1d7043070f',
+    messagingSenderId: '539797543710',
+    projectId: 'fieldshift-ai-professional',
+    authDomain: 'fieldshift-ai-professional.firebaseapp.com',
+    storageBucket: 'fieldshift-ai-professional.firebasestorage.app',
+    measurementId: 'G-ZQGFWW08H1',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyA_fieldshift_ai_android_key_2026',
-    appId: '1:108394857201:android:3b4c5d6e7f8g9h0i',
-    messagingSenderId: '108394857201',
-    projectId: 'fieldshift-ai-2026',
-    storageBucket: 'fieldshift-ai-2026.appspot.com',
+    apiKey: 'AIzaSyB8n3A4PCMs1EUjgtvSxque6NLN5OOslfs',
+    appId: '1:539797543710:android:591f3d39a3c71b1343070f',
+    messagingSenderId: '539797543710',
+    projectId: 'fieldshift-ai-professional',
+    storageBucket: 'fieldshift-ai-professional.firebasestorage.app',
   );
-
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyA_fieldshift_ai_ios_key_2026',
     appId: '1:108394857201:ios:2a3b4c5d6e7f8g9h',
@@ -76,11 +76,12 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyA_fieldshift_ai_windows_key_2026',
-    appId: '1:108394857201:web:9c2b4d8a1e3f7g5h',
-    messagingSenderId: '108394857201',
-    projectId: 'fieldshift-ai-2026',
-    authDomain: 'fieldshift-ai-2026.firebaseapp.com',
-    storageBucket: 'fieldshift-ai-2026.appspot.com',
+    apiKey: 'AIzaSyAxN2cEAl7c_WKFh0e58aX61vvAzUmK1i0',
+    appId: '1:539797543710:web:cce35528d16224a243070f',
+    messagingSenderId: '539797543710',
+    projectId: 'fieldshift-ai-professional',
+    authDomain: 'fieldshift-ai-professional.firebaseapp.com',
+    storageBucket: 'fieldshift-ai-professional.firebasestorage.app',
+    measurementId: 'G-RS2C4ZWTSY',
   );
 }

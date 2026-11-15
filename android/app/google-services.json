@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "539797543710",
+    "project_id": "fieldshift-ai-professional",
+    "storage_bucket": "fieldshift-ai-professional.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:539797543710:android:591f3d39a3c71b1343070f",
+        "android_client_info": {
+          "package_name": "com.fieldshift.fieldshift_ai_professional"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB8n3A4PCMs1EUjgtvSxque6NLN5OOslfs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
