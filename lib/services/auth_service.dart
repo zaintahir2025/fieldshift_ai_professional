@@ -84,10 +84,16 @@ class AuthService {
         _authStateController.add(appUser);
         return appUser;
       } on fb.FirebaseAuthException catch (e) {
-        if (e.message?.contains('API key not valid') == true ||
+        final isConfigPending = e.message?.contains('API key not valid') == true ||
             e.code == 'invalid-api-key' ||
-            e.code == 'api-key-not-valid') {
-          debugPrint('Firebase Auth notice: API key is placeholder. Authenticating with local farmer profile.');
+            e.code == 'api-key-not-valid' ||
+            e.code == 'configuration-not-found' ||
+            e.code == 'operation-not-allowed' ||
+            e.code == 'unauthorized-domain' ||
+            (e.message?.contains('CONFIGURATION_NOT_FOUND') ?? false);
+
+        if (isConfigPending) {
+          debugPrint('Firebase Auth notice (${e.code}): Console provider pending. Authenticating with local farmer profile.');
           return await _signInLocalUser(cleanEmail, password);
         }
         throw Exception(_mapFirebaseError(e.code, e.message));
@@ -172,10 +178,16 @@ class AuthService {
         _authStateController.add(appUser);
         return appUser;
       } on fb.FirebaseAuthException catch (e) {
-        if (e.message?.contains('API key not valid') == true ||
+        final isConfigPending = e.message?.contains('API key not valid') == true ||
             e.code == 'invalid-api-key' ||
-            e.code == 'api-key-not-valid') {
-          debugPrint('Firebase Auth notice: API key is placeholder. Registering farmer profile with cloud sync readiness.');
+            e.code == 'api-key-not-valid' ||
+            e.code == 'configuration-not-found' ||
+            e.code == 'operation-not-allowed' ||
+            e.code == 'unauthorized-domain' ||
+            (e.message?.contains('CONFIGURATION_NOT_FOUND') ?? false);
+
+        if (isConfigPending) {
+          debugPrint('Firebase Auth notice (${e.code}): Console provider pending. Registering farmer profile with cloud sync readiness.');
           return await _createLocalUser(cleanEmail, password, cleanName, cleanFarm);
         }
         throw Exception(_mapFirebaseError(e.code, e.message));
