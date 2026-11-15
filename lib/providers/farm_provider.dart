@@ -43,7 +43,7 @@ class FarmProvider extends ChangeNotifier {
   ClimateScenario _scenario = const ClimateScenario();
 
   bool _isSimpleFarmerMode = false;
-  String _activeMapLayer = 'Esri Satellite';
+  String _activeMapLayer = 'OpenStreetMap';
   double _mapLayerOpacity = 0.70;
   int _activeTimelineMonth = DateTime.now().month;
   String _selectedStrategyId = 'regenerative_legume';

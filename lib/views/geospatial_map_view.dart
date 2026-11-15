@@ -47,7 +47,13 @@ class GeospatialMapView extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.satellite_alt, size: 14, color: AppColors.primary),
+                    Icon(
+                      farm.activeMapLayer.contains('Satellite')
+                          ? Icons.satellite_alt
+                          : (farm.activeMapLayer.contains('Topo') ? Icons.terrain : Icons.map_outlined),
+                      size: 14,
+                      color: AppColors.primary,
+                    ),
                     const SizedBox(width: 6),
                     Text(
                       'Layer: ${farm.activeMapLayer}',
