@@ -58,20 +58,19 @@ class DefaultFirebaseOptions {
     storageBucket: 'fieldshift-ai-professional.firebasestorage.app',
   );
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyA_fieldshift_ai_ios_key_2026',
-    appId: '1:108394857201:ios:2a3b4c5d6e7f8g9h',
-    messagingSenderId: '108394857201',
-    projectId: 'fieldshift-ai-2026',
-    storageBucket: 'fieldshift-ai-2026.appspot.com',
+    apiKey: 'AIzaSyDrgA0oCAzkBHADYqcpWrXXEUgGuqY_Ip8',
+    appId: '1:539797543710:ios:f25bfa0a289f3fc743070f',
+    messagingSenderId: '539797543710',
+    projectId: 'fieldshift-ai-professional',
+    storageBucket: 'fieldshift-ai-professional.firebasestorage.app',
     iosBundleId: 'com.fieldshift.fieldshiftAiProfessional',
   );
-
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyA_fieldshift_ai_macos_key_2026',
-    appId: '1:108394857201:ios:2a3b4c5d6e7f8g9h',
-    messagingSenderId: '108394857201',
-    projectId: 'fieldshift-ai-2026',
-    storageBucket: 'fieldshift-ai-2026.appspot.com',
+    apiKey: 'AIzaSyDrgA0oCAzkBHADYqcpWrXXEUgGuqY_Ip8',
+    appId: '1:539797543710:ios:f25bfa0a289f3fc743070f',
+    messagingSenderId: '539797543710',
+    projectId: 'fieldshift-ai-professional',
+    storageBucket: 'fieldshift-ai-professional.firebasestorage.app',
     iosBundleId: 'com.fieldshift.fieldshiftAiProfessional',
   );
 
