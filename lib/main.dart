@@ -75,6 +75,13 @@ class _MainScaffoldState extends State<MainScaffold> {
 
         return Scaffold(
           appBar: AppBar(
+            leading: _currentIndex == 5
+                ? IconButton(
+                    icon: const Icon(Icons.arrow_back, color: AppColors.primary),
+                    tooltip: 'Back to Overview',
+                    onPressed: () => setState(() => _currentIndex = 0),
+                  )
+                : null,
             title: Row(
               children: [
                 Container(
@@ -105,6 +112,7 @@ class _MainScaffoldState extends State<MainScaffold> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       RichText(
+                        overflow: TextOverflow.ellipsis,
                         text: const TextSpan(
                           style: TextStyle(fontFamily: 'Roboto', color: AppColors.textDark),
                           children: [

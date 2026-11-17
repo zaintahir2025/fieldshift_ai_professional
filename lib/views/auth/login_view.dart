@@ -124,22 +124,20 @@ class _LoginViewState extends State<LoginView> {
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
-    final size = MediaQuery.of(context).size;
-    final isDesktop = size.width >= 850;
 
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: EdgeInsets.symmetric(
-              horizontal: isDesktop ? size.width * 0.28 : 24,
-              vertical: 24,
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Brand Header & Logo
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 28),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 480),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Brand Header & Logo
                 Container(
                   width: 78,
                   height: 78,
@@ -366,8 +364,9 @@ class _LoginViewState extends State<LoginView> {
                         const SizedBox(height: 20),
 
                         // Link to Sign Up
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                        Wrap(
+                          alignment: WrapAlignment.center,
+                          crossAxisAlignment: WrapCrossAlignment.center,
                           children: [
                             const Text("Don't have a farm account? ", style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
                             InkWell(
@@ -417,6 +416,8 @@ class _LoginViewState extends State<LoginView> {
           ),
         ),
       ),
-    );
-  }
+    ),
+  ),
+);
+}
 }

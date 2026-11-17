@@ -38,8 +38,10 @@ class GeospatialMapView extends StatelessWidget {
                   ),
                 ],
               ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
+              Wrap(
+                spacing: 8,
+                runSpacing: 6,
+                crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
                   ElevatedButton.icon(
                     onPressed: farm.isLocating
@@ -72,7 +74,6 @@ class GeospatialMapView extends StatelessWidget {
                       textStyle: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold),
                     ),
                   ),
-                  const SizedBox(width: 8),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                     decoration: BoxDecoration(
@@ -81,6 +82,7 @@ class GeospatialMapView extends StatelessWidget {
                       border: Border.all(color: AppColors.borderLight),
                     ),
                     child: Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(
                           farm.activeMapLayer.contains('Satellite')
@@ -178,43 +180,86 @@ class GeospatialMapView extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildTerrainStat(
-                        label: 'Mean Elevation',
-                        value: '${farm.summary?.elevationMeters?.toStringAsFixed(1) ?? "214.0"} m',
-                        sub: 'Above Sea Level',
-                        color: AppColors.primary,
-                      ),
-                    ),
-                    Expanded(
-                      child: _buildTerrainStat(
-                        label: 'Aquifer Trend (GRACE-FO)',
-                        value: farm.summary?.graceWaterStorageTrend != null
-                            ? '${farm.summary!.graceWaterStorageTrend!.toStringAsFixed(1)} cm/yr'
-                            : '-1.4 cm/yr',
-                        sub: 'Terrestrial Storage',
-                        color: AppColors.alertRed,
-                      ),
-                    ),
-                    Expanded(
-                      child: _buildTerrainStat(
-                        label: 'Erosion Risk Swale',
-                        value: 'Zone A (East)',
-                        sub: '5.2% Concave Slope',
-                        color: AppColors.warningAmber,
-                      ),
-                    ),
-                    Expanded(
-                      child: _buildTerrainStat(
-                        label: 'Frost Accumulation Hollow',
-                        value: 'Zone C (North)',
-                        sub: 'Cold Air Drainage',
-                        color: AppColors.waterBlue,
-                      ),
-                    ),
-                  ],
+                LayoutBuilder(
+                  builder: (ctx, constraints) {
+                    final isWide = constraints.maxWidth > 650;
+                    if (isWide) {
+                      return Row(
+                        children: [
+                          Expanded(
+                            child: _buildTerrainStat(
+                              label: 'Mean Elevation',
+                              value: '${farm.summary?.elevationMeters?.toStringAsFixed(1) ?? "214.0"} m',
+                              sub: 'Above Sea Level',
+                              color: AppColors.primary,
+                            ),
+                          ),
+                          Expanded(
+                            child: _buildTerrainStat(
+                              label: 'Aquifer Trend (GRACE-FO)',
+                              value: farm.summary?.graceWaterStorageTrend != null
+                                  ? '${farm.summary!.graceWaterStorageTrend!.toStringAsFixed(1)} cm/yr'
+                                  : '-1.4 cm/yr',
+                              sub: 'Terrestrial Storage',
+                              color: AppColors.alertRed,
+                            ),
+                          ),
+                          Expanded(
+                            child: _buildTerrainStat(
+                              label: 'Erosion Risk Swale',
+                              value: 'Zone A (East)',
+                              sub: '5.2% Concave Slope',
+                              color: AppColors.warningAmber,
+                            ),
+                          ),
+                          Expanded(
+                            child: _buildTerrainStat(
+                              label: 'Frost Accumulation Hollow',
+                              value: 'Zone C (North)',
+                              sub: 'Cold Air Drainage',
+                              color: AppColors.waterBlue,
+                            ),
+                          ),
+                        ],
+                      );
+                    }
+                    return GridView.count(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 8,
+                      mainAxisSpacing: 8,
+                      childAspectRatio: 1.8,
+                      children: [
+                        _buildTerrainStat(
+                          label: 'Mean Elevation',
+                          value: '${farm.summary?.elevationMeters?.toStringAsFixed(1) ?? "214.0"} m',
+                          sub: 'Above Sea Level',
+                          color: AppColors.primary,
+                        ),
+                        _buildTerrainStat(
+                          label: 'Aquifer Trend (GRACE-FO)',
+                          value: farm.summary?.graceWaterStorageTrend != null
+                              ? '${farm.summary!.graceWaterStorageTrend!.toStringAsFixed(1)} cm/yr'
+                              : '-1.4 cm/yr',
+                          sub: 'Terrestrial Storage',
+                          color: AppColors.alertRed,
+                        ),
+                        _buildTerrainStat(
+                          label: 'Erosion Risk Swale',
+                          value: 'Zone A (East)',
+                          sub: '5.2% Concave Slope',
+                          color: AppColors.warningAmber,
+                        ),
+                        _buildTerrainStat(
+                          label: 'Frost Accumulation Hollow',
+                          value: 'Zone C (North)',
+                          sub: 'Cold Air Drainage',
+                          color: AppColors.waterBlue,
+                        ),
+                      ],
+                    );
+                  },
                 ),
               ],
             ),

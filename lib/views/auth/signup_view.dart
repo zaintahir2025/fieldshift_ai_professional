@@ -125,8 +125,6 @@ class _SignUpViewState extends State<SignUpView> {
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
-    final size = MediaQuery.of(context).size;
-    final isDesktop = size.width >= 850;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -140,13 +138,13 @@ class _SignUpViewState extends State<SignUpView> {
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: EdgeInsets.symmetric(
-              horizontal: isDesktop ? size.width * 0.28 : 24,
-              vertical: 16,
-            ),
-            child: Column(
-              children: [
-                // Brand Logo Header
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 480),
+                child: Column(
+                  children: [
+                    // Brand Logo Header
                 Center(
                   child: Container(
                     width: 64,
@@ -419,6 +417,8 @@ class _SignUpViewState extends State<SignUpView> {
           ),
         ),
       ),
-    );
-  }
+    ),
+  ),
+);
+}
 }

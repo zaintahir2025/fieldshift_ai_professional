@@ -299,7 +299,7 @@ class _OverviewViewState extends State<OverviewView> {
             ),
             child: LayoutBuilder(
               builder: (ctx, boxConstraints) {
-                final isNarrow = boxConstraints.maxWidth < 620;
+                final isNarrow = boxConstraints.maxWidth < 720;
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
