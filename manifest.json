@@ -1,0 +1,35 @@
+{
+    "name": "FieldShift AI - NASA Earth Observation Agricultural Platform",
+    "short_name": "FieldShift AI",
+    "start_url": ".",
+    "display": "standalone",
+    "background_color": "#0B1D13",
+    "theme_color": "#1B4D3E",
+    "description": "Decision-support platform leveraging NASA Earth Observations (SMAP, ECOSTRESS, GPM, Landsat, MODIS, NASA POWER, GRACE, SRTM) for resilient crop rotation.",
+    "orientation": "portrait-primary",
+    "prefer_related_applications": false,
+    "icons": [
+        {
+            "src": "icons/Icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "icons/Icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        },
+        {
+            "src": "icons/Icon-maskable-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "maskable"
+        },
+        {
+            "src": "icons/Icon-maskable-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
+        }
+    ]
+}
